@@ -1,4 +1,6 @@
 import shlex
+import json
+from ui import show_briefing , show_suspects , show_clue , show_room
 from rich.console import Console
 console = Console()
 def show_help() :
@@ -7,7 +9,8 @@ def show_help() :
 def main():
     console.print("[bold yellow]CID MOOSA // CASE INVESTIGATION TERMINAL[/bold yellow]")
     console.print("Type [bold green]help[/bold green] to view available commands.\n")
-
+with open("case_data.json", "r", encoding="utf-8") as f:
+    case_data = json.load(f)    
     while True:
         try:
 
@@ -26,8 +29,9 @@ def main():
             elif command == "help":
                 show_help()
             elif command == "brief":
-                # Placeholder for Milestone 2
-                console.print("[yellow]Case briefing will be loaded from JSON in Milestone 2.[/yellow]")
+                show_briefing(case_data)
+            elif command == "suspects":
+                show_suspects(case_data["suspects"])     
             else:
                 console.print(f"[red]Unknown command:[/red] '{command}'. Type [bold]help[/bold] for options.")
 

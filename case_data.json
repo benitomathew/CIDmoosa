@@ -1,0 +1,126 @@
+{
+  "case_id": "foss_mec_bounty_01",
+  "title": "Bounty Night at FOSS Lab",
+  "briefing": "11:40 PM, FOSS Lab, Model Engineering College. Sponsor bounty payouts (₹15,000 total) go out tomorrow morning, and someone just wiped the top three spots on the contribution leaderboard, reassigning 42 merged PRs to an empty account named 'dev_null_99'. No external logins hit the box. Four people were in the lab tonight: Benito Mathew, Josh Philip, Dan Antony, and Assaf. Figure out who edited the database and prove it before morning.",
+  "starting_room": "foss_lab",
+  "rooms": {
+    "foss_lab": {
+      "name": "FOSS Lab Main Desk",
+      "description": "Long table tangled with extension cords and half-empty paper chaya cups. The shared lab ThinkPad running Ubuntu 24.04 is awake on the center desk with a rattling fan and an active tmux session.",
+      "exits": ["corner_table", "server_rack"],
+      "clues": ["sqlite_history", "tmux_pane"]
+    },
+    "corner_table": {
+      "name": "Corner Whiteboard & Desk",
+      "description": "A whiteboard covered in sponsor payout math and crossed-out PR counts. Someone's open notebook, a crumpled UPI receipt from the gate stall, and a charger cable sit next to a sticky note.",
+      "exits": ["foss_lab"],
+      "clues": ["gpay_receipt", "git_reflog"]
+    },
+    "server_rack": {
+      "name": "Lab Router & Pi Shelf",
+      "description": "A wire shelf holding the local test router, two Raspberry Pis, and a tangle of cat6 cables. The router admin console is still accessible from the local subnet.",
+      "exits": ["foss_lab"],
+      "clues": ["hotspot_dhcp", "cron_log", "auth_log"]
+    }
+  },
+  "clues": {
+    "sqlite_history": {
+      "name": ".sqlite_history",
+      "room": "foss_lab",
+      "summary": "Recent interactive queries run on bounties.db from /home/fosslab.",
+      "raw_output": "[2026-11-21 23:05:14] SELECT github_user, SUM(pr_points) FROM contributions GROUP BY github_user;\n[2026-11-21 23:22:08] UPDATE contributions SET github_user = 'dev_null_99' WHERE pr_points > 50;\n[2026-11-21 23:22:19] .exit",
+      "tags": ["tamper_proof", "timestamp_2322"]
+    },
+    "tmux_pane": {
+      "name": "tmux_session_0",
+      "room": "foss_lab",
+      "summary": "Scrollback buffer left open on the shared ThinkPad terminal.",
+      "raw_output": "josh@mec-thinkpad:~$ ssh fosslab@192.168.1.40\nfosslab@bounty-box:~$ python3 tally.py --dry-run\n[DRY-RUN] #1 benitomathew (180 pts) | #2 joshphilip (170 pts) | #3 danantony (145 pts)\nfosslab@bounty-box:~$ # terminal idle from 23:06 to 23:21",
+      "tags": ["josh_session", "red_herring"]
+    },
+    "gpay_receipt": {
+      "name": "thattukada_upi_slip",
+      "room": "corner_table",
+      "summary": "Transaction screenshot / printed slip from the street stall outside MEC main gate.",
+      "raw_output": "Paid to: Kunjikka Thattukada (Thrikkakara)\nAmount: ₹140.00 (4x Puffs, 4x Sulaimani)\nUPI Ref: 632589104412 | Time: 11:21 PM, 21 Nov 2026\nPaid by: BENITO MATHEW (benitomathew@okicici)",
+      "tags": ["benito_alibi"]
+    },
+    "git_reflog": {
+      "name": "local_fork_reflog",
+      "room": "corner_table",
+      "summary": "Git reflog pulled from Dan's synced test branch on the lab repo mirror.",
+      "raw_output": "8f3a1c2 HEAD@{0}: commit (amend): fix lint in auth middleware <dan.antony@mec.ac.in>\n4b9e01d HEAD@{1}: commit: wip test config <throwaway.kerala99@gmail.com>\n1d02a88 HEAD@{2}: checkout: moving from main to feat/webhook-retry",
+      "tags": ["culprit_email", "dan_link"]
+    },
+    "hotspot_dhcp": {
+      "name": "network_manager.log",
+      "room": "server_rack",
+      "summary": "NetworkManager interface logs from the lab workstation.",
+      "raw_output": "Nov 21 23:18:54 NetworkManager: wlan0 disconnected from 'MEC-FOSS-5G'\nNov 21 23:19:02 NetworkManager: wlan0 connected to 'Nothing_Phone_2a' (192.168.43.1)\nNov 21 23:23:11 NetworkManager: wlan0 reconnected to 'MEC-FOSS-5G'",
+      "tags": ["hotspot_switch", "timestamp_2319"]
+    },
+    "cron_log": {
+      "name": "syslog_cron",
+      "room": "server_rack",
+      "summary": "System cron execution log for tally.py.",
+      "raw_output": "Nov 21 23:30:01 bounty-box CRON[4102]: (fosslab) CMD (python3 /srv/bounty/tally.py --sync)\nNov 21 23:30:02 bounty-box tally[4103]: Synced 42 rows for dev_null_99. Status: OK",
+      "tags": ["debunks_bug_claim"]
+    },
+    "auth_log": {
+      "name": "var_log_auth.log",
+      "room": "server_rack",
+      "summary": "SSH authentication log on bounty-box.",
+      "raw_output": "Nov 21 23:04:58 bounty-box sshd[3910]: Accepted publickey for fosslab from 192.168.1.18 port 51422\nNov 21 23:20:11 bounty-box sudo: fosslab : TTY=pts/1 ; PWD=/home/fosslab ; COMMAND=/usr/bin/sqlite3 /srv/bounty/bounties.db",
+      "tags": ["local_tty", "debunks_remote_hack"]
+    }
+  },
+  "suspects": {
+    "benito": {
+      "name": "Benito Mathew",
+      "role": "Repo Maintainer",
+      "alibi": "merged the final prs around 10:30, pushed tags, and walked down to the gate with the first-years for puffs and sulaimani. check my gpay if you want, i wasn't even upstairs.",
+      "follow_up": "look, okay—i squash-merged two of my own readme typo fixes at 10:28 so josh wouldn't pass me by 10 points. dumb move, yeah, i'll drop those points. but i didn't touch the sqlite db.",
+      "evidence_reactions": {
+        "gpay_receipt": "yeah that's mine, 11:21 at kunjikka's stall. five of us were standing right there.",
+        "sqlite_history": "why would i zero out my own handle? i was literally #1 before that ran."
+      }
+    },
+    "josh": {
+      "name": "Josh Philip",
+      "role": "Event Coordinator",
+      "alibi": "i was at the corner table updating the sponsor notion doc till 11:30. went to wash my face for like five minutes around 11:15, left my laptop open, that's it.",
+      "follow_up": "fine, i ran a dry-run on tally.py at 11:05 because benito's score jumped right before freeze and i wanted to check the diff. i forgot to close the ssh pane when i stepped out.",
+      "evidence_reactions": {
+        "tmux_pane": "that's my dry-run from 11:05. i didn't run any sql update—someone must have used my open terminal while i was in the washroom."
+      }
+    },
+    "dan": {
+      "name": "Dan Antony",
+      "role": "Backend Contributor",
+      "alibi": "honestly tally.py has been flaky all week. probably a race condition when the 11:30 cron job hit sqlite while github webhooks were firing. i was just debugging my branch.",
+      "follow_up": "my pr failed ci at 11:10 so i was already out of the top three anyway. why would i bother messing with the leaderboard?",
+      "evidence_reactions": {
+        "cron_log": "okay so cron just read what was already in the db. still doesn't mean it was me.",
+        "hotspot_dhcp": "lots of people use nothing phones on campus, man.",
+        "git_reflog": "...wait. where did you pull that reflog from? i amended that commit."
+      }
+    },
+    "assaf": {
+      "name": "Assaf",
+      "role": "Club Treasurer & Infra Lead",
+      "alibi": "i was near the server rack flashing an sd card for tomorrow's workshop demo. left right after the 11:30 sync finished.",
+      "follow_up": "yes, i have root keys to bounty-box and i manage the sponsor upi pool, but i don't even have a contributor profile on the leaderboard.",
+      "evidence_reactions": {
+        "hotspot_dhcp": "yeah i use a nothing phone 2a, and my hotspot stays on auto-share for the pis. anyone on the lab machine could've clicked connect.",
+        "cron_log": "that's the standard cron job i set up last week—it just mirrors whatever is in sqlite.",
+        "auth_log": "that 23:04 ssh login is from the lab thinkpad's ip, not my laptop."
+      }
+    }
+  },
+  "solution": {
+    "culprit": "dan",
+    "required_evidence": ["sqlite_history", "git_reflog"],
+    "optional_supporting_evidence": ["hotspot_dhcp", "cron_log", "gpay_receipt", "auth_log"],
+    "closing_summary": "Case closed. Dan Antony saw his final PR fail CI at 11:10 PM, knocking him out of the ₹5,000 third-place bounty. While Josh Philip stepped away from his open SSH session on the lab ThinkPad at 11:19 PM, Dan tethered the box to Assaf's auto-sharing Nothing Phone hotspot, registered 'dev_null_99' using the same throwaway Gmail left in his local git reflog, and manually ran the SQL UPDATE at 11:22 PM—hoping to claim the burner account anonymously in the morning."
+  }
+}
