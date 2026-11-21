@@ -32,7 +32,6 @@ def show_suspects(suspects: dict):
 
 def show_room(room_id: str, room_data: dict):
     """Displays the current room's description, clues to inspect, and exits."""
-    # Join lists into readable strings, e.g. "sqlite_history, tmux_pane"
     clues_list = ", ".join(room_data["clues"]) if room_data["clues"] else "None"
     exits_list = ", ".join(room_data["exits"])
 
@@ -42,15 +41,23 @@ def show_room(room_id: str, room_data: dict):
         f"[bold green]Exits:[/bold green] {exits_list}"
     )
 
-    # TODO: Create a Panel using `body`, title=f"[bold white]{room_data['name']}[/bold white]",
-    # and border_style="blue", then print it with console.print(...)
-    pass
+    panel = Panel(
+        body,  # <-- Pass `body` as the first argument!
+        title=f"[bold white]{room_data['name']} ({room_id})[/bold white]",
+        border_style="blue",
+        padding=(1, 2)
+    )
+    console.print(panel)
 
 
 def show_clue(clue_id: str, clue: dict):
     """Displays a clue's summary and raw terminal/log output."""
     content = f"[italic]{clue['summary']}[/italic]\n\n[white]{clue['raw_output']}[/white]"
 
-    # TODO: Create a Panel using `content`, title=f"[bold cyan]{clue['name']} ({clue_id})[/bold cyan]",
-    # and border_style="cyan", then print it with console.print(...)
-    pass
+    panel = Panel(
+        content,  # <-- Pass `content` as the first argument!
+        title=f"[bold cyan]{clue['name']} ({clue_id})[/bold cyan]",
+        border_style="cyan",
+        padding=(1, 2)
+    )
+    console.print(panel)  # <-- Don't forget to print it!

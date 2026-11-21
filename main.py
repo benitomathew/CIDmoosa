@@ -4,13 +4,13 @@ from ui import show_briefing , show_suspects , show_clue , show_room
 from rich.console import Console
 console = Console()
 def show_help() :
-    console.print("brief // exit // ")
+    console.print("[bold cyan]brief[/bold cyan] - View case summary | [bold cyan]suspects[/bold cyan] - View suspects & alibis | [bold cyan]exit[/bold cyan] - Quit ")
     pass
 def main():
     console.print("[bold yellow]CID MOOSA // CASE INVESTIGATION TERMINAL[/bold yellow]")
     console.print("Type [bold green]help[/bold green] to view available commands.\n")
-with open("case_data.json", "r", encoding="utf-8") as f:
-    case_data = json.load(f)    
+    with open("case_data.json", "r", encoding="utf-8") as f:
+        case_data = json.load(f)    
     while True:
         try:
 
