@@ -9,6 +9,7 @@ from engine import (
     inspect_clue,
     ask_suspect,
     show_notes,
+    make_accusation,
 )
 
 console = Console()
@@ -22,8 +23,10 @@ def show_help():
         "[bold cyan]ask <suspect> [clue][/bold cyan] - Question suspect\n"
         "[bold cyan]notes[/bold cyan] - View collected evidence | "
         "[bold cyan]exit[/bold cyan] - Quit"
+        "[bold cyan]accuse[/bold cyan] - To accuse a suspect"
     )
 def main():
+
     console.print("[bold yellow]CID MOOSA // CASE INVESTIGATION TERMINAL[/bold yellow]")
     console.print("Type [bold green]help[/bold green] to view available commands.\n")
     with open("case_data.json", "r", encoding="utf-8") as f:
@@ -73,9 +76,13 @@ def main():
                     ask_suspect(state, case_data, suspect_id, clue_id)
             elif command == "notes":
                 show_notes(state, case_data)
+            elif command == "accuse":
+                make_accusation(state, case_data)    
             else:
                 console.print(f"[red]Unknown command:[/red] '{command}'. Type [bold]help[/bold] for options.")
-
+            if state.get("game_over"):
+                console.print("\n[bold yellow]Thanks for playing CID MOOSA![/bold yellow]")
+                break
         except ValueError as e:
             console.print(f"[red]Input error:[/red] {e}")
         except KeyboardInterrupt:
