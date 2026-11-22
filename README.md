@@ -31,6 +31,8 @@ At the `cid-moosa>` prompt, type a command and press **Enter**. Commands are cas
 - **`accuse`** — Make your final accusation. You must name the true culprit **and** already have the mandatory forensic proof saved in your `notes` to win.
 - **`help` / `exit`** — Show commands or quit the game.
 
+---
+
 ## Features & Design Choices
 
 Rather than putting everything into a single script full of nested conditionals, I structured **CIDmoosa** as a modular, data-driven CLI engine:
@@ -55,24 +57,71 @@ CIDmoosa/
 ├── requirements.txt  # Python dependencies (rich)
 ├── LICENSE           # MIT Open-Source License
 └── screenshots/      # Terminal gameplay captures
+```
+
+---
 
 ## Installation & Setup
 
 ### Prerequisites
-* Python 3.10 or higher
-* Git
+
+- Python 3.10 or higher
+- Git
 
 ### 1. Clone the Repository
 
-git clone [https://github.com/benitomathew/CIDmoosa.git]
+```bash
+git clone https://github.com/benitomathew/CIDmoosa.git
 cd CIDmoosa
-### Setup the virtual env.
+```
+
+### 2. Set Up the Virtual Environment
+
+```powershell
+# Windows (PowerShell)
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
+```
 
-### install dependencies
+```bash
+# Linux / macOS
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+### 3. Install Dependencies
+
+```bash
 pip install -r requirements.txt
+```
 
-### Run
+### 4. Run the Game
+
+```bash
 python main.py
 ```
+
+---
+
+## Screenshots
+
+|      Room Exploration & Briefing      |       Interrogation & Deduction        |
+| :-----------------------------------: | :------------------------------------: |
+| ![Gameplay](screenshots/1.png) | ![suspects](screenshots/2.png) |
+
+---
+
+## Development Process & AI Usage Disclosure
+
+I built **CIDmoosa** step-by-step across feature branches (`feat/cli-loop`, `feat/case-data-and-ui`, `feat/investigation-engine`, `feat/accusation-system`) rather than pushing everything in a single commit, allowing each layer to be tested cleanly before merging into `main`.
+
+In the spirit of transparency, here is how AI tools were used during development:
+
+- I used Gemini as a pair-programming guide to plan the modular split across `main.py`, `ui.py`, `engine.py`, and `case_data.json`, learn `shlex` command tokenization, and structure `rich` `Panel` and `Table` layouts.
+  AI helped identify early bugs—such as dictionary key typos, indentation issues in clue inspection, and input validation when commands are entered without required arguments.
+
+---
+
+## License
+
+This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
