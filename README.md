@@ -105,11 +105,10 @@ python main.py
 
 ## Screenshots
 
-|      Room Exploration & Briefing      |       Interrogation & Deduction        |
 | :-----------------------------------: | :------------------------------------: |
 | ![Gameplay](screenshots/1.png) | ![suspects](screenshots/2.png) |
 
----
+## (screenshots/3.png) | (screenshots/4.png)
 
 ## Development Process & AI Usage Disclosure
 
